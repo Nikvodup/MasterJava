@@ -85,62 +85,27 @@ public class Payload {
         return projects;
     }
 
-    /**
-     * Sets the value of the projects property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Payload.Projects }
-     *     
-     */
+
     public void setProjects(Payload.Projects value) {
         this.projects = value;
     }
 
-    /**
-     * Gets the value of the cities property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Payload.Cities }
-     *     
-     */
+
     public Payload.Cities getCities() {
         return cities;
     }
 
-    /**
-     * Sets the value of the cities property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Payload.Cities }
-     *     
-     */
+
     public void setCities(Payload.Cities value) {
         this.cities = value;
     }
 
-    /**
-     * Gets the value of the users property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Payload.Users }
-     *     
-     */
+
     public Payload.Users getUsers() {
         return users;
     }
 
-    /**
-     * Sets the value of the users property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Payload.Users }
-     *     
-     */
+
     public void setUsers(Payload.Users value) {
         this.users = value;
     }
