@@ -19,7 +19,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.nullToEmpty;
 import static j2html.TagCreator.*;
@@ -49,6 +48,12 @@ public class MainXml {
         System.out.println();
         users = processByStax(projectName, payloadUrl);
         users.forEach(System.out::println);
+
+        System.out.println();
+        html = transform(projectName, payloadUrl);
+        try (Writer writer = Files.newBufferedWriter(Paths.get("out/groups.html"))) {
+            writer.write(html);
+        }
     }
 
     private static Set<User> parseByJaxb(String projectName, URL payloadUrl) throws Exception {
@@ -67,9 +72,7 @@ public class MainXml {
         final Set<Project.Group> groups = new HashSet<>(project.getGroup());  // identity compare
         return StreamEx.of(payload.getUsers().getUser())
                 .filter(u -> !Collections.disjoint(groups, u.getGroupRefs()))
-                .collect(
-                        Collectors.toCollection(() -> new TreeSet<>(USER_COMPARATOR))
-                );
+                .toCollection(() -> new TreeSet<>(USER_COMPARATOR));
     }
 
     private static Set<User> processByStax(String projectName, URL payloadUrl) throws Exception {
@@ -80,16 +83,12 @@ public class MainXml {
 
             // Projects loop
             projects:
-            while (processor.doUntil(XMLEvent.START_ELEMENT, "Project")) {
+            while (processor.startElement("Project", "Projects")) {
                 if (projectName.equals(processor.getAttribute("name"))) {
-                    // Groups loop
-                    String element;
-                    while ((element = processor.doUntilAny(XMLEvent.START_ELEMENT, "Project", "Group", "Users")) != null) {
-                        if (!element.equals("Group")) {
-                            break projects;
-                        }
+                    while (processor.startElement("Group", "Project")) {
                         groupNames.add(processor.getAttribute("name"));
                     }
+                    break;
                 }
             }
             if (groupNames.isEmpty()) {
@@ -125,5 +124,14 @@ public class MainXml {
                 head().with(title(projectName + " users")),
                 body().with(h1(projectName + " users"), table)
         ).render();
+    }
+
+    private static String transform(String projectName, URL payloadUrl) throws Exception {
+        URL xsl = Resources.getResource("groups.xsl");
+        try (InputStream xmlStream = payloadUrl.openStream(); InputStream xslStream = xsl.openStream()) {
+            XsltProcessor processor = new XsltProcessor(xslStream);
+            processor.setParameter("projectName", projectName);
+            return processor.transform(xmlStream);
+        }
     }
 }
