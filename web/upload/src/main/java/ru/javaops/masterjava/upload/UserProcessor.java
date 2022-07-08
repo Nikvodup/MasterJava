@@ -16,6 +16,7 @@ import java.util.List;
 
 public class UserProcessor {
     private static final JaxbParser jaxbParser = new JaxbParser(ObjectFactory.class);
+    private static UserDao userDao = DBIProvider.getDao(UserDao.class);
 
     public List<User> process(final InputStream is) throws XMLStreamException, JAXBException {
         final StaxStreamProcessor processor = new StaxStreamProcessor(is);
